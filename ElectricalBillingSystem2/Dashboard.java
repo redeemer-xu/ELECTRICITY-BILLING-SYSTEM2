@@ -1,6 +1,6 @@
 package ElectricalBillingSystem2;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+//import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+//import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -22,7 +22,8 @@ public class Dashboard extends JFrame {
     private JButton clearButton;
     private JButton logoutButton;
     
-    // Billing rates (you can adjust these)
+
+    // Billing rates (I can adjust these)
     private static final double RATE_PER_UNIT = 8.50;
     private static final double FIXED_CHARGE = 50.00;
     

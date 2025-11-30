@@ -23,46 +23,47 @@ public class LoginPage extends JFrame {
     
     public LoginPage() {
         setTitle("Electrical Billing System - Login");
-        setSize(400, 300);
+        setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
+        getContentPane().setBackground(new Color(240, 240, 240));
         
         // Load icons
         loadIcons();
         
         // Title Label
         JLabel titleLabel = new JLabel("Admin Login");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setBounds(120, 20, 200, 30);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        titleLabel.setBounds(350, 150, 250, 40);
         add(titleLabel);
         
         // Username Label and Field
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setBounds(50, 80, 100, 25);
+        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        usernameLabel.setBounds(250, 250, 120, 30);
         add(usernameLabel);
         
         usernameField = new JTextField();
-        usernameField.setBounds(150, 80, 170, 25);
+        usernameField.setBounds(380, 250, 250, 30);
+        usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
         add(usernameField);
         
         // Password Label and Field
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setBounds(50, 120, 100, 25);
+        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordLabel.setBounds(250, 310, 120, 30);
         add(passwordLabel);
         
         passwordField = new JPasswordField();
-        passwordField.setBounds(150, 120, 170, 25);
+        passwordField.setBounds(380, 310, 250, 30);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         add(passwordField);
         
         // Toggle Password Visibility Button
         togglePasswordButton = new JButton();
-        if (eyeClosedIcon != null) {
-            togglePasswordButton.setIcon(eyeClosedIcon);
-        } else {
-            togglePasswordButton.setText("👁");
-        }
-        togglePasswordButton.setBounds(325, 120, 25, 25);
+        togglePasswordButton.setIcon(eyeClosedIcon);
+        togglePasswordButton.setBounds(635, 310, 30, 30);
         togglePasswordButton.setFocusPainted(false);
         togglePasswordButton.setToolTipText("Show/Hide Password");
         togglePasswordButton.setBorderPainted(false);
@@ -71,15 +72,17 @@ public class LoginPage extends JFrame {
         
         // Login Button
         loginButton = new JButton("Login");
-        loginButton.setBounds(150, 170, 100, 30);
+        loginButton.setBounds(380, 380, 120, 40);
         loginButton.setBackground(new Color(0, 123, 255));
         loginButton.setForeground(Color.WHITE);
+        loginButton.setFont(new Font("Arial", Font.BOLD, 16));
         loginButton.setFocusPainted(false);
         add(loginButton);
         
         // Message Label
         messageLabel = new JLabel("");
-        messageLabel.setBounds(50, 210, 300, 25);
+        messageLabel.setBounds(250, 450, 400, 30);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         messageLabel.setForeground(Color.RED);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(messageLabel);
@@ -160,24 +163,16 @@ public class LoginPage extends JFrame {
         if (passwordVisible) {
             // Hide password
             passwordField.setEchoChar('•');
-            if (eyeClosedIcon != null) {
-                togglePasswordButton.setIcon(eyeClosedIcon);
-            } else {
-                togglePasswordButton.setText("👁");
-            }
+            togglePasswordButton.setIcon(eyeClosedIcon);
             passwordVisible = false;
         } else {
             // Show password
             passwordField.setEchoChar((char) 0);
-            if (eyeOpenIcon != null) {
-                togglePasswordButton.setIcon(eyeOpenIcon);
-            } else {
-                togglePasswordButton.setText("🙈");
-            }
+            togglePasswordButton.setIcon(eyeOpenIcon);
             passwordVisible = true;
         }
     }
-    
+
     private void loadIcons() {
         try {
             // Load eye show icon (when password is visible)
