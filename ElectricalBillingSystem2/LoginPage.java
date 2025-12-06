@@ -26,39 +26,45 @@ public class LoginPage extends JFrame {
         setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(null);
-        getContentPane().setBackground(new Color(240, 240, 240));
         
-        // Load icons
+        // Load icons first
         loadIcons();
+        
+        // Create main panel with background
+        BackgroundPanel mainPanel = new BackgroundPanel();
+        mainPanel.setLayout(null);
+        setContentPane(mainPanel);
         
         // Title Label
         JLabel titleLabel = new JLabel("Admin Login");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
-        titleLabel.setBounds(350, 150, 250, 40);
-        add(titleLabel);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        titleLabel.setBounds(330, 150, 300, 50);
+        titleLabel.setForeground(Color.WHITE);
+        mainPanel.add(titleLabel);
         
-        // Username Label and Field
+        // Username Label
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        usernameLabel.setFont(new Font("Arial", Font.BOLD, 18));
         usernameLabel.setBounds(250, 250, 120, 30);
-        add(usernameLabel);
+        usernameLabel.setForeground(Color.WHITE);
+        mainPanel.add(usernameLabel);
         
         usernameField = new JTextField();
         usernameField.setBounds(380, 250, 250, 30);
         usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(usernameField);
+        mainPanel.add(usernameField);
         
-        // Password Label and Field
+        // Password Label
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordLabel.setFont(new Font("Arial", Font.BOLD, 18));
         passwordLabel.setBounds(250, 310, 120, 30);
-        add(passwordLabel);
+        passwordLabel.setForeground(Color.WHITE);
+        mainPanel.add(passwordLabel);
         
         passwordField = new JPasswordField();
         passwordField.setBounds(380, 310, 250, 30);
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(passwordField);
+        mainPanel.add(passwordField);
         
         // Toggle Password Visibility Button
         togglePasswordButton = new JButton();
@@ -68,7 +74,7 @@ public class LoginPage extends JFrame {
         togglePasswordButton.setToolTipText("Show/Hide Password");
         togglePasswordButton.setBorderPainted(false);
         togglePasswordButton.setContentAreaFilled(false);
-        add(togglePasswordButton);
+        mainPanel.add(togglePasswordButton);
         
         // Login Button
         loginButton = new JButton("Login");
@@ -77,7 +83,7 @@ public class LoginPage extends JFrame {
         loginButton.setForeground(Color.WHITE);
         loginButton.setFont(new Font("Arial", Font.BOLD, 16));
         loginButton.setFocusPainted(false);
-        add(loginButton);
+        mainPanel.add(loginButton);
         
         // Message Label
         messageLabel = new JLabel("");
@@ -85,7 +91,7 @@ public class LoginPage extends JFrame {
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         messageLabel.setForeground(Color.RED);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(messageLabel);
+        mainPanel.add(messageLabel);
         
         // Login Button Action
         loginButton.addActionListener(new ActionListener() {
@@ -110,6 +116,42 @@ public class LoginPage extends JFrame {
                 authenticateUser();
             }
         });
+    }
+    
+    // Custom JPanel that draws background image
+    class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+        
+        public BackgroundPanel() {
+            try {
+                File backgroundFile = new File("images/background image 2.jpg");
+                if (!backgroundFile.exists()) {
+                    backgroundFile = new File("images\\background image 2.jpg");
+                }
+                
+                if (backgroundFile.exists()) {
+                    backgroundImage = ImageIO.read(backgroundFile);
+                    System.out.println("Background image loaded successfully!");
+                } else {
+                    System.out.println("Background image not found");
+                }
+            } catch (Exception e) {
+                System.out.println("Error loading background: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                // Draw the image scaled to panel size
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            } else {
+                // Fallback color if image not loaded
+                setBackground(new Color(240, 240, 240));
+            }
+        }
     }
     
     private void authenticateUser() {
@@ -139,7 +181,6 @@ public class LoginPage extends JFrame {
                 messageLabel.setForeground(new Color(0, 128, 0));
                 messageLabel.setText("Login Successful!");
                 
-                // Close login window and open dashboard
                 SwingUtilities.invokeLater(() -> {
                     new Dashboard().setVisible(true);
                     dispose();
@@ -161,12 +202,10 @@ public class LoginPage extends JFrame {
     
     private void togglePasswordVisibility() {
         if (passwordVisible) {
-            // Hide password
             passwordField.setEchoChar('•');
             togglePasswordButton.setIcon(eyeClosedIcon);
             passwordVisible = false;
         } else {
-            // Show password
             passwordField.setEchoChar((char) 0);
             togglePasswordButton.setIcon(eyeOpenIcon);
             passwordVisible = true;
@@ -175,7 +214,6 @@ public class LoginPage extends JFrame {
 
     private void loadIcons() {
         try {
-            // Load eye show icon (when password is visible)
             File eyeOpenFile = new File("images/eye-show.png");
             if (eyeOpenFile.exists()) {
                 BufferedImage eyeOpenImg = ImageIO.read(eyeOpenFile);
@@ -183,7 +221,6 @@ public class LoginPage extends JFrame {
                 eyeOpenIcon = new ImageIcon(scaledOpen);
             }
             
-            // Load eye closed icon (when password is hidden)
             File eyeClosedFile = new File("images/eye.png");
             if (eyeClosedFile.exists()) {
                 BufferedImage eyeClosedImg = ImageIO.read(eyeClosedFile);
@@ -191,13 +228,12 @@ public class LoginPage extends JFrame {
                 eyeClosedIcon = new ImageIcon(scaledClosed);
             }
             
-            // If only one icon exists, use it for both
             if (eyeOpenIcon == null && eyeClosedIcon != null) {
                 eyeOpenIcon = eyeClosedIcon;
             }
             
         } catch (Exception e) {
-            System.out.println("Could not load icons, using emoji fallback");
+            System.out.println("Could not load icons");
             e.printStackTrace();
         }
     }
