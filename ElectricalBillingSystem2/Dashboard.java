@@ -312,22 +312,26 @@ public class Dashboard extends JFrame {
         editDialog.setSize(450, 300);
         editDialog.setLocationRelativeTo(this);
         editDialog.setLayout(null);
-        editDialog.getContentPane().setBackground(new Color(240, 240, 240));
+        editDialog.getContentPane().setBackground(new Color(240, 240, 240)); //  light shade of gray color
         
         JLabel titleLabel = new JLabel("Edit Customer Information");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setBounds(100, 20, 250, 25);
         editDialog.add(titleLabel);
         
-        // Customer ID Field (now editable)
+        // Customer ID Field (read only)
         JLabel idLabel = new JLabel("Customer ID:");
         idLabel.setBounds(30, 60, 120, 25);
         editDialog.add(idLabel);
         
         JTextField idField = new JTextField(currentId);
         idField.setBounds(150, 60, 250, 25);
+        idField.setEditable(false); // ID should not be editable
+        idField.setBackground(new Color(230, 230, 230)); // gray background to show it's disabled
+        idField.setForeground(Color.DARK_GRAY);
         editDialog.add(idField);
         
+        // Customer Name Field kay editable
         JLabel nameLabel = new JLabel("Customer Name:");
         nameLabel.setBounds(30, 100, 120, 25);
         editDialog.add(nameLabel);
@@ -336,6 +340,7 @@ public class Dashboard extends JFrame {
         nameField.setBounds(150, 100, 250, 25);
         editDialog.add(nameField);
         
+        // Unit consumed Field kay editable
         JLabel unitsLabel = new JLabel("Units Consumed:");
         unitsLabel.setBounds(30, 140, 120, 25);
         editDialog.add(unitsLabel);
@@ -344,17 +349,17 @@ public class Dashboard extends JFrame {
         unitsEditField.setBounds(150, 140, 250, 25);
         editDialog.add(unitsEditField);
         
+        // Save Button
         JButton saveButton = new JButton("Save Changes");
         saveButton.setBounds(125, 190, 200, 40);
         saveButton.setBackground(new Color(40, 167, 69));
         saveButton.setForeground(Color.WHITE);
         saveButton.setFont(new Font("Arial", Font.BOLD, 14));
         saveButton.addActionListener(e -> {
-            String newId = idField.getText().trim();
             String newName = nameField.getText().trim();
             String newUnitsStr = unitsEditField.getText().trim();
             
-            if (newId.isEmpty() || newName.isEmpty() || newUnitsStr.isEmpty()) {
+            if (newName.isEmpty() || newUnitsStr.isEmpty()) {
                 JOptionPane.showMessageDialog(editDialog, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -371,60 +376,25 @@ public class Dashboard extends JFrame {
                 
                 Connection conn = DatabaseConnection.getConnection();
                 
-                // Check if new ID already exists (only if ID was changed)
-                if (!newId.equals(currentId)) {
-                    String checkQuery = "SELECT customer_id FROM customers WHERE customer_id = ?";
-                    PreparedStatement checkPst = conn.prepareStatement(checkQuery);
-                    checkPst.setString(1, newId);
-                    ResultSet rs = checkPst.executeQuery();
-                    
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(editDialog, "Customer ID '" + newId + "' already exists! Please use a different ID.", "Duplicate ID", JOptionPane.ERROR_MESSAGE);
-                        rs.close();
-                        checkPst.close();
-                        conn.close();
-                        return;
-                    }
-                    rs.close();
-                    checkPst.close();
-                }
-                
-                // If ID changed, we need to delete old record and insert new one
-                // (because ID is PRIMARY KEY and can't be updated directly)
-                if (!newId.equals(currentId)) {
-                    // Delete old record
-                    String deleteQuery = "DELETE FROM customers WHERE customer_id = ?";
-                    PreparedStatement deletePst = conn.prepareStatement(deleteQuery);
-                    deletePst.setString(1, currentId);
-                    deletePst.executeUpdate();
-                    deletePst.close();
-                    
-                    // Insert with new ID
-                    String insertQuery = "INSERT INTO customers (customer_id, customer_name, units_consumed, total_bill) VALUES (?, ?, ?, ?)";
-                    PreparedStatement insertPst = conn.prepareStatement(insertQuery);
-                    insertPst.setString(1, newId);
-                    insertPst.setString(2, newName);
-                    insertPst.setInt(3, newUnits);
-                    insertPst.setDouble(4, newTotalBill);
-                    insertPst.executeUpdate();
-                    insertPst.close();
-                } else {
-                    // ID didn't change, just update normally
-                    String query = "UPDATE customers SET customer_name = ?, units_consumed = ?, total_bill = ? WHERE customer_id = ?";
-                    PreparedStatement pst = conn.prepareStatement(query);
-                    pst.setString(1, newName);
-                    pst.setInt(2, newUnits);
-                    pst.setDouble(3, newTotalBill);
-                    pst.setString(4, currentId);
-                    pst.executeUpdate();
-                    pst.close();
-                }
-                
-                conn.close();
-                
-                JOptionPane.showMessageDialog(editDialog, "Customer updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                editDialog.dispose();
-                loadCustomerData();
+                // 
+               String query = "UPDATE customers SET customer_name = ?, units_consumed = ?, total_bill = ? WHERE customer_id = ?";
+               PreparedStatement pst = conn.prepareStatement(query);
+               pst.setString(1, newName);
+               pst.setInt(2, newUnits);
+               pst.setDouble(3, newTotalBill);
+               pst.setString(4, currentId); // Gamiton ang original ID para sa WHERE clause
+
+               int rowsAffected = pst.executeUpdate();
+               pst.close();
+               conn.close();
+
+               if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(editDialog, "Customer updated sucessfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    editDialog.dispose();
+                    loadCustomerData();
+               } else {
+                    JOptionPane.showMessageDialog(editDialog, "Update failed! Customer not found.", "Error", JOptionPane.ERROR_MESSAGE);
+               }
                 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(editDialog, "Please enter a valid number for units!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -530,22 +500,22 @@ public class Dashboard extends JFrame {
         String currentDate = dateFormat.format(new Date());
         
         StringBuilder bill = new StringBuilder();
-        bill.append("═════════════════════════════════════════════════════════════════════\n");
+        bill.append("═══════════════════════════════════════════════════════════\n");
         bill.append("               ELECTRICITY BILL RECEIPT\n");
-        bill.append("═════════════════════════════════════════════════════════════════════\n\n");
+        bill.append("═══════════════════════════════════════════════════════════\n\n");
         bill.append("Date & Time    : ").append(currentDate).append("\n\n");
         bill.append("Customer ID    : ").append(customerId).append("\n");
         bill.append("Customer Name  : ").append(customerName).append("\n");
         bill.append("Units Consumed : ").append(units).append(" kWh\n\n");
-        bill.append("─────────────────────────────────────────────────────────────────────\n");
+        bill.append("───────────────────────────────────────────────────────────\n");
         bill.append("BILLING DETAILS:\n");
-        bill.append("─────────────────────────────────────────────────────────────────────\n");
+        bill.append("───────────────────────────────────────────────────────────\n");
         bill.append(String.format("Fixed Charge            : ₱ %.2f\n", FIXED_CHARGE));
         bill.append(String.format("Rate per Unit           : ₱ %.2f\n", RATE_PER_UNIT));
         bill.append(String.format("Unit Charges (%d kWh)   : ₱ %.2f\n", units, unitCharge));
-        bill.append("─────────────────────────────────────────────────────────────────────\n");
+        bill.append("───────────────────────────────────────────────────────────\n");
         bill.append(String.format("TOTAL BILL              : ₱ %.2f\n", totalBill));
-        bill.append("═════════════════════════════════════════════════════════════════════\n\n");
+        bill.append("═══════════════════════════════════════════════════════════\n\n");
         bill.append("Thank you for your payment!\n");
         
         displayArea.setText(bill.toString());
